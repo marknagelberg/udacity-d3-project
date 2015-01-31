@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+    
+    <style>
+
+    	h2 {
+            text-align: center;
+            color: black;
+            font-family: Arial;
+      	}
+      div.years_buttons {
+
+        display: flex;
+        justify-content: center;
+
+      }
+
+      div.years_buttons div {
+        background-color: rgb(225, 225, 225);
+        padding: 3px;
+        margin: 7px;
+        /*float: left;*/
+
+      }
+      div.chart {
+        text-align: center;
+      }
+    </style>
+
+    <script type="text/javascript">
+
+
+      function draw(data) {
+      
+      /*
+        Setup code to build the svg element containing the visualization
+      */
+
+          "use strict";
+          var margin = 75,
+              width = 900 - margin,
+              height = 550 - margin;
+              
+          d3.select("body")
+          .append("div")
+          .append("h2")
+          .text("Prosper Loan Returns vs. Risks");
+
+          var years = ["2009", "2010", "2011", "2012", "2013", "All Years"]; // Figure out how to build these values automatically
+          
+          //Add the year buttons to the page
+          var buttons = d3.select("div")
+          .append("div")
+          .attr("class", "years_buttons")
+          .selectAll("div")
+          .data(years)
+          .enter()
+          .append("div")
+          .text(function(d) {
+              return d;
+          });
+
+          d3.select("body")
+          .append("div")
+          .attr("class", "chart")
+
+          var svg = dimple.newSvg(".chart", width + margin, height + margin);
+
+      /*
+        Dimple.js Chart construction code
+      */
+          //Only looking at total data now - but will want to pass in value below to decide on year
+          //maybe use dimple.getUniqueValues(data, fields) to get the list of years available
+          //var filtered_data = dimple.filterData(data,"Year", "2009")
+          //var myChart = new dimple.chart(svg, filtered_data);
+          
+          var myChart = new dimple.chart(svg, data);
+
+          var x = myChart.addCategoryAxis("x", "Prosper Rating (Letter)"); 
+          //Order the x axis so loans are decreasing in risk
+          x.addOrderRule(["HR", "E", "D", "C", "B", "A", "AA"]); //need to get proper letter ordering in order of reduced risk
+          //Change the x axis title to indicate increasing risk from left to right
+          x.title = "Prosper Loan Rating, from highest risk (HR) to lowest risk (AA)";
+          x.fontSize = 12;
+
+          //Calculate the minimum and maximum values the y axis can take
+          var min_axis = d3.min(data, function(d) {
+            return parseFloat(d['Minimum']);
+          });
+          
+          var max_axis = d3.max(data, function(d) {
+            return parseFloat(d['Maximum']);
+          }); 
+
+
+          var y = myChart.addMeasureAxis("y", "Average");
+          //Format the y axis as a percentage
+          y.tickFormat = "%";
+          //Set min and max y axis values
+          y.overrideMin = min_axis;
+          y.overrideMax = max_axis; 
+          y.fontSize = 12;
+          y.title = "Estimated Return";
+
+          //Add series for average (line and scatter), minimum, and maximum estimated return
+          var avg1 = myChart.addSeries("Avg", dimple.plot.line, [x,y]);
+          var avg2 = myChart.addSeries("Avg", dimple.plot.scatter, [x,y]);
+
+          //Add "hidden" axis for minimum estimated returns
+          var y_min = myChart.addMeasureAxis("y", "Minimum");
+          y_min.hidden = true;
+          y_min.tickFormat = "%";
+          y_min.overrideMin = min_axis;
+          y_min.overrideMax = max_axis;        
+          var minimum = myChart.addSeries("Min", dimple.plot.scatter, [x,y_min])
+
+          //Add "hidden" axis for maximum returns
+          var y_max = myChart.addMeasureAxis("y", "Maximum");
+          y_max.hidden = true;
+          y_max.tickFormat = "%";
+          y_max.overrideMin = min_axis;
+          y_max.overrideMax = max_axis;
+          var maximum = myChart.addSeries("Max", dimple.plot.scatter, [x,y_max]);
+
+          //Color the three series differently
+          myChart.assignColor("Min", "black");
+          myChart.assignColor("Max", "red");
+
+          
+          
+
+          // Animate the chart for every year
+          var myStoryboard = myChart.setStoryboard("Year");
+          myStoryboard.autoplay = false;
+          
+          //Make sure animation orders yearly data from earliest to latest
+          myStoryboard.addOrderRule("Year")
+          //Set each frame in the animation to hold for 10 seconds
+          myStoryboard.frameDuration = 10000;
+          myStoryboard.fontSize = 12;
+          
+          var legend = myChart.addLegend(660, 3, 100, 50, "left", [maximum, avg1, minimum]);
+          legend.horizontalAlign = "right";
+          legend.fontSize = 12;
+
+          //When clicking the year, transisiton the viz to that year
+          buttons.on("click", function(d) {
+            d3.select(".years_buttons")
+              .selectAll("div")
+              .transition()
+              .duration(500)
+              .style("color", "black")
+              .style("background", "rgb(225, 225, 225)");
+
+            d3.select(this)
+              .transition()
+              .duration(500)
+              .style("background", "lightBlue")
+              .style("color", "white");
+            myStoryboard.goToFrame(d);
+          });
+          
+
+          myChart.draw();
+
+
+	  //http://dimplejs.org/advanced_examples_viewer.html?id=advanced_price_range_lollipop - good reference for the aggregation stuff
+    //http://stackoverflow.com/questions/8639383/how-do-i-center-an-svg-in-a-div
+        };
+
+    </script>
+  </head>
+<body>
+  <script type="text/javascript">
+    /*
+    Use D3 to load the CSV file
+    and pass the contents of it to the draw function
+    */
+  d3.csv("prosperLoanData_aggregated.csv", draw);
+  </script>
+</body>
+</html>
