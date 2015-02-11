@@ -6,9 +6,6 @@ with open('prosperLoanData.csv') as f:
     reader = csv.DictReader(f)
     with open('prosperLoanData_cleaned.csv', 'wb') as g:
         writer = csv.writer(g)
-        '''writer.writerow(['Listing Number', 'Loan Origination Date', 'Month', 'Day',
-                        'Year', 'Prosper Rating (Numeric)', 'Prosper Rating (Letter)',
-                        'Estimated Return'])'''
         writer.writerow(['Year', 'Prosper Rating (Letter)',
                         'Estimated Return'])
         for line in reader:
