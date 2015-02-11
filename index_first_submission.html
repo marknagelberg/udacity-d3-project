@@ -80,59 +80,43 @@
           //First calculate the minimum and maximum values the y axis can take
           //so we can set min and max axis values.
           var min_axis = d3.min(data, function(d) {
-            return parseFloat(d['5th Percentile']);
+            return parseFloat(d['Minimum']);
           });
           
           var max_axis = d3.max(data, function(d) {
-            return parseFloat(d['95th Percentile']);
-          }); 
-
-          var min_num_loans = d3.min(data, function(d) {
-            return parseFloat(d['Number of Loans']);
-          });
-          
-          var max_num_loans = d3.max(data, function(d) {
-            return parseFloat(d['Number of Loans']);
+            return parseFloat(d['Maximum']);
           }); 
 
           //Set up y axis (Estimated Return)
-          var y = myChart.addMeasureAxis("y", "Median");
+          var y = myChart.addMeasureAxis("y", "Average");
           y.overrideMin = min_axis;
           y.overrideMax = max_axis; 
           y.tickFormat = "%";
           y.fontSize = 12;
           y.title = "Estimated Return";
 
-          //Add series for median (line and scatter), 5th, and 95th percentile estimated return
-          var median1 = myChart.addSeries("Median ", dimple.plot.line, [x,y]);
-          var median2 = myChart.addSeries("Median ", dimple.plot.scatter, [x,y]);
+          //Add series for average (line and scatter), minimum, and maximum estimated return
+          var avg1 = myChart.addSeries("Avg", dimple.plot.line, [x,y]);
+          var avg2 = myChart.addSeries("Avg", dimple.plot.scatter, [x,y]);
 
-          var y_num = myChart.addMeasureAxis("y", "Number of Loans");
-          y_num.overrideMin = min_num_loans;
-          y_num.overrideMax = max_num_loans;
-          y_num.fontSize = 12;
-          var num_loans = myChart.addSeries("# Loans", dimple.plot.bar, [x,y_num]);
-          myChart.assignColor("# Loans", "#222222", "#000000", 0.1);
+          var y_min = myChart.addMeasureAxis("y", "Minimum");
+          y_min.hidden = true;
+          y_min.tickFormat = "%";
+          y_min.overrideMin = min_axis;
+          y_min.overrideMax = max_axis;        
+          var minimum = myChart.addSeries("Min", dimple.plot.scatter, [x,y_min])
 
-          var y_5 = myChart.addMeasureAxis("y", "5th Percentile");
-          y_5.hidden = true;
-          y_5.tickFormat = "%";
-          y_5.overrideMin = min_axis;
-          y_5.overrideMax = max_axis;        
-          var percentile_5 = myChart.addSeries("5 Percentile", dimple.plot.scatter, [x,y_5])
-
-          var y_95 = myChart.addMeasureAxis("y", "95th Percentile");
-          y_95.hidden = true;
-          y_95.tickFormat = "%";
-          y_95.overrideMin = min_axis;
-          y_95.overrideMax = max_axis;
-          var percentile_95 = myChart.addSeries("95 Percentile", dimple.plot.scatter, [x,y_95]);
+          var y_max = myChart.addMeasureAxis("y", "Maximum");
+          y_max.hidden = true;
+          y_max.tickFormat = "%";
+          y_max.overrideMin = min_axis;
+          y_max.overrideMax = max_axis;
+          var maximum = myChart.addSeries("Max", dimple.plot.scatter, [x,y_max]);
 
           //Color series and add legend
-          myChart.assignColor("5 Percentile", "red");
-          myChart.assignColor("95 Percentile", "black");
-          
-          var legend = myChart.addLegend("75%", "2.5%", 100, 50, "left", [percentile_95, median1, percentile_5]);
+          myChart.assignColor("Min", "red");
+          myChart.assignColor("Max", "black");
+          var legend = myChart.addLegend("75%", "2.5%", 100, 50, "left", [maximum, avg1, minimum]);
           legend.horizontalAlign = "right";
           legend.fontSize = 12;
           

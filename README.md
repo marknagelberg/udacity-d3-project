@@ -1,6 +1,3 @@
-# udacity-d3-project
-This is my final project for the Udacity course, "Data Visualization and D3.js". It provides an interactive visualization examining the relationship between loan risk and return for Prosper loans (https://www.prosper.com/) from 2009-2013.
-
 Summary
 
 The visualization analyzes data on loans, taken from the peer-to-peer lending marketplace called Prosper. It focuses on two main pieces of data on loans originated from 2009 to 2013: prosper rating, which provides a measure of loan risk; and estimated return to lenders, which is essentially the interest rate received by lenders after costs and losses.
@@ -8,11 +5,13 @@ The visualization analyzes data on loans, taken from the peer-to-peer lending ma
 
 Design
 
-When exploring the many variables in the raw Prosper loan data, I thought "what information would I be most interested in if I was thinking of lending money through Prosper?" I came to the conclusion that the most valuable information would be the amount they can expect to make from loans, i.e. the average estimated return. 
+When exploring the many variables in the raw Prosper loan data, I thought "what information would I be most interested in if I was thinking of lending money through Prosper?" I came to the conclusion that the most valuable information would be the amount they can expect to make from loans, i.e. the median estimated return. 
 
-Another key piece of information would be the credit risk of who I am lending the money to, as this will be a key determinant of returns. This is why I included the "Prosper Loan Rating" on the horizontal axis, as these values represent measures of credit risk. The main piece of information I wanted to draw to the eye was how the average estimated return changes as credit risk decreases. 
+Another key piece of information would be the credit risk of who I am lending the money to, as this will be a key determinant of returns. This is why I included the "Prosper Loan Rating" on the horizontal axis, as these values represent measures of credit risk. The main piece of information I wanted to draw to the eye was how the median estimated return changes as credit risk decreases. 
 
-Another key piece of information I encoded is the "spread" of expected returns. As a result, I included maximum and minimum estimated return for each prosper loan rating. This is important to know as a lender, because a higher spread of returns means more risk that would not be communicated by average returns alone. Higher spread means opportunity for big returns, but also big losses.
+Another key piece of information I encoded is the "spread" of expected returns. As a result, I included 5th and 95th percentile estimated return for each prosper loan rating. This is important to know as a lender, because a higher spread of returns means more risk that would not be communicated by median returns alone. Higher spread means opportunity for big returns, but also big losses. 
+
+I also included the number of loans for each category. Some people may find this interesting to get some further background on the data and understand how robust particular observations are. For example, a reader may be a bit more skeptical of a particular observation when we are talking about a relatively small number of loans.
 
 Finally, I included various years, so the reader could see how estimated returns change over time and understand the robustness of the direct relationship between estimated return and creditworthiness. 
 
@@ -22,7 +21,7 @@ A few key stories emerge from the data:
 
 - Loans to less creditworthy borrowers tend to have a much larger spread (maximum return - minimum return) than loans to more creditworthy borrowers. This makes sense, as it explains the tradeoff you have to make when lending to less creditworthy borrowers. The average estimated return is bigger, but there is a chance for bigger losses.
 
-- The spread of loans appears to decline fairly consistently over the years from 2009 to 2013. This may be due to the economic downturn of 2009, when lenders likely had to deal with many more defaults that increased down-side risks to loans, thus decreasing minimum expected returns. At the same time, lenders likely expected to be compensated for these risks with higher interest rates, thus increasing maximum estimated returns.
+- The spread of loan returns appears to decline fairly consistently over the years from 2009 to 2013. This may be due to the economic downturn of 2009, when lenders likely had to deal with many more defaults that increased down-side risks to loans, thus decreasing minimum expected returns. At the same time, lenders likely expected to be compensated for these risks with higher interest rates, thus increasing maximum estimated returns.
 
 When developing the visualization, my first step was downloading the Prosper loan data and exploring it in Tableau to look for interesting relationships. I ultimately converged on the relationship between effective return and loan risk (see the screenshot of the preliminary graph in "First Exploratory Version in Tableau (December 2014).PNG"). To improve this preliminary version of the visualization, I wanted to change the y axis to percentage, change the x axis values to something more meaningful, add a title, make the graph a bit less "busy", and make the main message of the graph more clear. Also, when flipping through the years, I wanted to ensure the axis always remained the same to allow easy comparison across years. I also had to perform some data aggregation, since the data set used in Tableau had ~75,000 entries, which caused the web browser to crash when using dimple.js or d3.js. 
 
@@ -43,7 +42,9 @@ After coding and iterating on the design many times on my own, I came up with th
 
 - The visualization did not render properly in Firefox (it was getting cut off). 
 
-In response to these comments, I swapped the minimum/maximum colors, changed css styling and html structure so the viz works in Firefox, changed the mouseover cursor for the years to a "pointing hand", and moved the years buttons to the bottom of the chart. I explained to my colleague that the reason I only had a line graph for average returns was because I didn't want the chart to be too cluttered and I wanted to focus on the change in average returns. He changed his mind and said that I should leave it as-is. 
+In response to these comments, I swapped the minimum/maximum colors, changed css styling and html structure so the viz works in Firefox, changed the mouseover cursor for the years to a "pointing hand", and moved the years buttons to the bottom of the chart. I explained to my colleague that the reason I only had a line graph for average returns was because I didn't want the chart to be too cluttered and I wanted to focus on the change in average returns. He changed his mind and said that I should leave it as-is. This version of the visualization is given by "index_first_submission.html".
+
+After submitting this version of the visualization, my Udacity reviewer pointed out that all of the data that I reported is not robust to outliers (minimum return, average return, maximum return), and therefore may not provide particularly useful information about the distribution of loans for each risk category. Furthermore, they suggested including information on the number of loans. In response, I reprocessed the data to report on the 5th percentile, median, and 95th percentile instead of min, average, and max. I also added a second axis with a light bar chart in the background illustrating the number of loans.
 
 
 Resources
